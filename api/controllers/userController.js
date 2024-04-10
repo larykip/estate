@@ -2,6 +2,7 @@ const errorHandler = require("../error")
 const successHandler = require("../success")
 const User = require("../models/userModel")
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 const createUser = async (req, res, next) => {
     try{
@@ -21,6 +22,13 @@ const createUser = async (req, res, next) => {
             // Create a new user
             const newUser = new User({ username, email, password })
             await newUser.save()
+
+            const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET)
+            res.cookie('access-token', token, {
+                expiresIn: process.env.JWT_EXPIRES_IN,
+                httpOnly: true
+            })
+
             res.status(201).json({ message: "User created successfully" })
     }catch(error){
         next(error)
@@ -40,7 +48,12 @@ const loginUser = async (req, res, next) => {
             errorHandler(400, 'Invalid Credentials!')
         }
 
-        //JWT
+        const token = jwt.sign({ id: user._id, }, process.env.JWT_SECRET)
+
+        res.cookie('access-token', token, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+            httpOnly: true
+        })
 
         res.status(200).json({ message: "User logged in successfully" })
         //successHandler(200, 'User logged in successfully')
