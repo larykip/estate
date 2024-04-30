@@ -55,7 +55,7 @@ const loginUser = async (req, res, next) => {
             httpOnly: true
         })
 
-        res.status(200).json({ message: "User logged in successfully" })
+        res.status(200).json({ message: "User logged in successfully", user: user})
         //successHandler(200, 'User logged in successfully')
 
 
